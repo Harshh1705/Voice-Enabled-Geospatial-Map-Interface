@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">  -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-Enabled GIS</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands"></script>
+    <style>
+        #map {
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Voice-Enabled Geospatial Interface</h1>
+<div id="map"></div>
+
+<script>
+    // Initialize the map lats and longs first india
+    const indiaLat = 20.5937;
+    const indiaLong = 78.9629;
+    const zoomLvl = 5;
+    //lats and longs for blr
+    const blrLat = 12.9716;
+    const blrLong = 77.5946;
+    const blrZoom = 10;
+
+    var map = L.map('map').setView([indiaLat, indiaLong], zoomLvl); // Center on Indias coordinates
+    
+     // Base layer
+     var baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Roads layer 
+    var roadsLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '© OpenStreetMap contributors'
+    });
+
+    var layers = {
+        'base': baseLayer,
+        'roads': roadsLayer
+    };
+
+    var currentLayer = 'base';
+
+    
+
+    
+    async function setupVoiceRecognition() {
+        const recognizer = speechCommands.create('BROWSER_FFT');
+        await recognizer.ensureModelLoaded();
+        
+        //  commands input
+        recognizer.listen(result => {
+            const scores = result.scores;
+            const command = scores.indexOf(Math.max(...scores));
+            
+            console.log(scores);
+            console.log(command);
+            switch (command) {
+                case 0:
+                    alert('now in case 0 no functions detected')
+                    
+                    break;
+                case 1:
+                    alert('now in case 1 no functions detected');
+                    
+                    break;
+                case 2:// if u say down it works 
+                    alert('now in case 2 and Showing roads layer');
+                    
+                    if (currentLayer === 'base') {
+                        map.removeLayer(layers.base);
+                        map.addLayer(layers.roads);
+                        currentLayer = 'roads';
+                    } else {
+                        map.removeLayer(layers.roads);
+                        map.addLayer(layers.base);
+                        currentLayer = 'base';
+                    }
+                    break;
+                    //say "down " to implement road layer and "down " once again to remove road layer
+                    
+                case 3:
+                    alert("now in case 3 no functions detected");
+                    break;
+                case 4: //say unknown
+                    alert('now in case 4 no functions detected');
+                    
+                    break;
+                case 5:// say four
+                    alert('now in case 5 no functions detected');
+                    
+                    break;
+                case 6: // say go
+                    alert('now in case 6 no functions detected');
+                    map.flyTo([blrLat,blrLong],blrZoom);
+                    break;
+                case 7: // say left
+                    alert('now in case 7 and zooming out')
+                    //map.setView([blrLat,blrLong],blrZoom);
+                    map.zoomOut();
+                    break;
+                case 8:// say right
+                    alert('now in case 8 and zooming in');
+                    map.zoomIn();
+                    break;
+                default:
+                    alert('command not recognised')
+                    console.log('Command not recognized');
+            }
+        }, {
+            probabilityThreshold: 0.75
+        });
+    }
+
+    setupVoiceRecognition();
+</script>
+
+</body>
+</html>
