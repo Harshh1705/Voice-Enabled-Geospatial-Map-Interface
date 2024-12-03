@@ -1,6 +1,3 @@
-# problem statement 4 solution team 64bit
-
-
 
 
 # Voice-Enabled Geospatial Map Interface
